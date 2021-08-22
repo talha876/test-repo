@@ -1,0 +1,65 @@
+<%= form_with(model: url, local: true) do |form| %>
+  <% if url.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(url.errors.count, "error") %> prohibited this url from being saved:</h2>
+
+      <ul>
+        <% url.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :original_url %>
+    <%= form.text_field :original_url %>
+  </div>
+
+  <div class="field" id='short-url-panel'>
+    <%= form.label :short_url %>
+    <span id='short-url-value'></span>
+  </div>
+
+  <div class="actions">
+    <%= form.submit id: 'generate-url' %>
+  </div>
+<% end %>
+
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    var $originalurl = $('#url_original_url');
+    var $shortUrl = $('#url_short_url');
+    var $shortUrlVal = $('#short-url-value');
+    var $shortUrlPanel = $('#short-url-panel');
+    $shortUrlPanel.hide();
+    $(document).on('click', '#generate-url', function(e){
+      e.preventDefault();
+      if(isValidUrl($originalurl.val())){
+        sendRequest();
+      }
+      else {
+        alert("Please add valid URL");
+      }
+    });
+
+    function isValidUrl(url){
+      var pattern = /^(http|https)?:\/\/[a-zA-Z0-9-\.]+\.[a-z]{2,4}/;
+      return pattern.test(url);
+    }
+
+    function sendRequest(){
+      $.ajax({
+        url: '/shortened_url',
+        data: {url: $originalurl.val()},
+        success: function(result){
+          $shortUrlPanel.show();
+          $shortUrlVal.text(result.short_url);
+        }
+      });
+    }
+
+  });
+
+</script>
